@@ -1,6 +1,10 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## 高中语文作文 Wiki
 
-本项目是一个基于 LLM Wiki 模式的高中语文作文知识库。LLM 负责维护 wiki 的全部内容，用户负责提供原始资料和提问。
+本项目是一个基于 LLM Wiki 模式的高中语文作文知识库，也是一个 Obsidian vault。LLM 负责维护 wiki 的全部内容，用户负责提供原始资料和提问。所有页面间关联使用 Obsidian `[[双链]]` 语法。
 
 ### 目录结构
 
@@ -45,3 +49,14 @@
 - 素材名称用本名，不用修饰语（如 `苏轼.md`，不写 `宋代诗人苏轼.md`）
 - 主题用四字或六字短语命名（如 `家国情怀.md`）
 - 范文文件名格式：`来源-作文标题.md`（无来源则只用标题）
+
+### Obsidian CLI
+
+`/lint` 依赖 `obsidian` CLI 工具检查链接。关键命令均需加 `vault=EssaySystem`：
+
+```bash
+obsidian unresolved verbose vault=EssaySystem   # 全局死链扫描
+obsidian orphans vault=EssaySystem               # 孤立笔记
+obsidian backlinks file=<名> vault=EssaySystem    # 反向链接
+obsidian links file=<名> vault=EssaySystem        # 出链
+```
