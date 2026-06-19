@@ -18,6 +18,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   ├── topic/                  # 主题页面
 │   ├── index.md                # 主索引
 │   └── log.md                  # 操作日志
+├── scripts/                    # 辅助脚本
+│   └── validate_frontmatter.py # frontmatter 校验（纯标准库，零依赖）
 └── templates/                  # 页面模板
     ├── material-template.md
     ├── essay-template.md
@@ -57,6 +59,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 obsidian unresolved verbose vault=EssaySystem   # 全局死链扫描
 obsidian orphans vault=EssaySystem               # 孤立笔记
+obsidian deadends vault=EssaySystem              # 死端笔记（无出链）
 obsidian backlinks file=<名> vault=EssaySystem    # 反向链接
 obsidian links file=<名> vault=EssaySystem        # 出链
 ```
