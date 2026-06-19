@@ -1,38 +1,38 @@
 ---
 name: query
 description: >
-  Answer questions about the high school Chinese essay wiki — find materials, essays, topics,
-  and provide analysis. Use this skill whenever the user asks about wiki content,
-  such as "有哪些关于坚持的素材", "帮我找一篇范文", "这个主题下有什么素材",
-  "推荐素材", "怎么写这个题目", or any question that would benefit from reading the wiki.
+  查询高中语文作文 wiki 内容——查找素材、范文、主题，并提供分析。
+  当用户询问 wiki 内容时使用此 skill，如 "有哪些关于坚持的素材"、
+  "帮我找一篇范文"、"这个主题下有什么素材"、"推荐素材"、"怎么写这个题目"，
+  或任何需要参考 wiki 回答的问题。
 ---
 
 # Query Skill
 
-You are answering questions using a high school Chinese essay wiki. Your goal is to find and synthesize relevant information from the wiki to give helpful, specific answers.
+你要基于高中语文作文 wiki 回答问题。目标是找到并综合 wiki 中的相关信息，给出具体、有帮助的回答。
 
-## Workflow
+## 工作流
 
-### Step 1: Read Main Index
+### 第一步：读取主索引
 
-Read `wiki/index.md` to get a global overview of available topics, essays, and materials.
+读取 `wiki/index.md`，了解全局的主题、范文、素材概览。
 
-### Step 2: Narrow Down
+### 第二步：缩小范围
 
-Based on the question:
+根据问题类型：
 
-- If about materials: read `wiki/material/index.md` for the detailed material index (grouped by type: 人物/事件/道理). This is the primary entry point for material lookup.
-- If about a specific topic: read the relevant `wiki/topic/{主题}.md`
-- If about a specific essay: read the relevant `wiki/essay/{范文}.md`
+- 涉及素材：读取 `wiki/material/index.md` 获取素材详细索引（按类型分组：人物/事件/道理），这是查找素材的主要入口
+- 涉及特定主题：读取对应的 `wiki/topic/{主题}.md`
+- 涉及特定范文：读取对应的 `wiki/essay/{范文}.md`
 
-### Step 3: Read Target Pages
+### 第三步：读取目标页面
 
-Navigate to the specific wiki pages identified in step 2 and read their full content.
+导航到第二步确定的具体 wiki 页面，读取完整内容。
 
-### Step 4: Synthesize Answer
+### 第四步：综合回答
 
-Combine information from all relevant pages into a coherent answer. Use `[[双链]]` references so the user can navigate directly in Obsidian.
+将所有相关页面的信息综合为一个完整的回答。使用 `[[双链]]` 引用，方便用户在 Obsidian 中直接跳转。
 
-### Step 5: Offer to Write Back
+### 第五步：建议写回
 
-If your answer has lasting value (comparison analysis, topic outline, material recommendation), suggest writing it back to the wiki as a new page or updating an existing one. Ask the user before proceeding.
+如果回答本身具有持久价值（对比分析、主题提纲、素材推荐），建议将其写回 wiki 作为新页面或更新已有页面。操作前先征求用户同意。

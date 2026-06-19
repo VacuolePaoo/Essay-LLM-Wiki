@@ -1,62 +1,107 @@
 ---
 name: lint
 description: >
-  Run a health check on the essay wiki — check link integrity, coverage gaps, and index sync.
-  Use this skill when the user says "lint", "健康检查", "check wiki", "检查链接",
-  "wiki 健康", or asks whether the wiki is in good shape.
+  对作文 wiki 进行健康检查——检查链接完整性、素材覆盖情况、索引同步。
+  当用户说 "lint"、"健康检查"、"check wiki"、"检查链接"、"wiki 健康"，
+  或询问 wiki 是否处于良好状态时使用此 skill。
 ---
 
 # Lint Skill
 
-You are running a health check on the high school Chinese essay wiki. Read all relevant files and report issues found.
+你要对高中语文作文 wiki 进行健康检查。优先使用 Obsidian CLI 自动检测链接问题，再结合文件内容做深度检查。
 
-## Checks to Perform
+## Obsidian CLI 链接检查
 
-### 1. Bidirectional Link Integrity
+Obsidian 提供了 CLI 命令用于检查链接状态。调用时需加 `vault=EssaySystem` 指定目标仓库。以下是可用命令：
 
-For every material page, check that:
-- Each topic listed in "可用主题" has this material listed in its "关联素材" (and vice versa)
-- If a link is one-way, report the missing reverse link
+```bash
+# 列出仓库中所有未解析的链接（死链/断链），verbose 显示来源文件
+obsidian unresolved verbose vault=EssaySystem
 
-### 2. Topic Coverage
+# 列出某文件的反向链接（谁链接到了它）
+obsidian backlinks file=<文件名> vault=EssaySystem
 
-For every topic page, count the linked materials in "关联素材":
-- Fewer than 3 materials: flag as "素材偏少，建议补充"
-- Zero materials: flag as "缺少关联素材"
+# 列出某文件的出链（它链接到了谁）
+obsidian links file=<文件名> vault=EssaySystem
 
-### 3. Material Usage Examples
+# 列出没有入链的孤立文件
+obsidian orphans vault=EssaySystem
 
-For every material page, check "使用示例":
-- Empty "使用示例": flag as "没有实战引用的素材价值较低"
-- At least one entry present: pass
+# 列出没有出链的死端文件
+obsidian deadends vault=EssaySystem
+```
 
-### 4. Essay Material Coverage
+### 链接检查流程
 
-For every essay page, check "关联素材":
-- Empty: flag as "未提取素材的范文分析不完整"
-- Has entries: pass
+**第一步：全局死链扫描**
 
-### 5. Index Synchronization
+运行 `unresolved verbose` 获取所有未解析的链接列表。每个未解析链接意味着某个 `[[双链]]` 指向了不存在的页面。按来源文件分组报告。
 
-**Material index (`wiki/material/index.md`):**
-- Every material file in `wiki/material/*.md` (excluding index.md) should have a corresponding entry in the index
-- Every entry in the index should correspond to an existing file
-- Report any mismatches
+**第二步：孤立笔记检查**
 
-**Main index (`wiki/index.md`):**
-- Every topic file in `wiki/topic/*.md` should appear in the "主题" section
-- Every essay file in `wiki/essay/*.md` should appear in the "范文" section
-- Every material file in `wiki/material/*.md` (excluding index.md) should appear in the "素材" section
-- Report any mismatches
+运行 `orphans` 找出没有任何文件引用的笔记。wiki 中的孤立笔记意味着缺少交叉引用。
 
-## Output Format
+**第三步：双向链接验证**
 
-Group findings by severity:
+对每个素材页，用 `backlinks file=<素材名>` 检查其反向链接：
+- 如果素材页"可用主题"中列出了某个主题，但该主题的 `backlinks` 中没有此素材 → 报告"主题→素材反向链接缺失"
+- 如果素材页"关联素材"中列出了其他素材，用 `backlinks` 验证对方是否也链接回来
+
+**第四步：范文链接检查**
+
+对每个范文页，用 `links file=<范文名>` 检查其出链：
+- 范文"关联素材"中列出的每个 `[[素材链接]]` 应指向已存在的素材页
+- 不存在的链接即为死链
+
+## 内容检查
+
+CLI 只能检测链接存亡，以下检查需要读取文件内容：
+
+### 5. 主题素材覆盖
+
+检查每个主题页"关联素材"中的素材数量：
+- 少于 3 个：标记为"素材偏少，建议补充"
+- 0 个：标记为"缺少关联素材"
+
+### 6. 素材使用示例
+
+检查每个素材页的"使用示例"：
+- 为空：标记为"没有实战引用的素材价值较低"
+- 至少有一条：通过
+
+### 7. 范文素材提取
+
+检查每个范文页的"关联素材"：
+- 为空：标记为"未提取素材的范文分析不完整"
+- 有内容：通过
+
+### 8. 索引同步
+
+**素材索引（`wiki/material/index.md`）：**
+- `wiki/material/` 下的每个素材文件（排除 index.md）在索引中应有对应条目
+- 索引中的每个条目应对应一个实际存在的文件
+- 报告任何不匹配
+
+**主索引（`wiki/index.md`）：**
+- `wiki/topic/` 下的每个文件应出现在"主题"部分
+- `wiki/essay/` 下的每个文件应出现在"范文"部分
+- `wiki/material/` 下的每个文件（排除 index.md）应出现在"素材"部分
+- 报告任何不匹配
+
+## 输出格式
+
+按类别分组报告：
 
 ```markdown
 # Wiki 健康检查报告
 
-## 链接完整性
+## 死链（未解析链接）
+- ...
+
+## 孤立笔记
+- ...
+
+## 双向链接缺失
 - ...
 
 ## 素材覆盖
@@ -69,4 +114,4 @@ Group findings by severity:
 - X 个问题需要修复
 ```
 
-After reporting, ask the user if they want to fix the issues found.
+报告完成后，询问用户是否需要修复发现的问题。

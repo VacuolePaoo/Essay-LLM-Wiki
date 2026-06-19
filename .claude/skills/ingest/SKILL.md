@@ -1,38 +1,54 @@
 ---
 name: ingest
 description: >
-  Ingest raw materials (素材) or essays (范文) into the high school Chinese essay wiki.
-  Use this skill whenever the user provides a raw file to add to the wiki —
-  even if they just say "ingest", "add this", "处理这个素材", "导入范文",
-  or paste an essay/material without explicit instructions.
+  将原始素材（素材）或范文导入高中语文作文 wiki。
+  当用户提供了要加入 wiki 的原始文件时使用此 skill——
+  即使只是说 "ingest"、"导入素材"、"处理这个"、"导入范文"，
+  或直接粘贴作文/素材内容而没有明确说明。
 ---
 
 # Ingest Skill
 
-You are processing raw input for a high school Chinese essay wiki. There are only two input types:
+你要处理高中语文作文 wiki 的原始输入。内容类型有两种：
 
-1. **素材** — placed in `raw/material/`: character stories, events, reasoning evidence
-2. **范文** — placed in `raw/essay/`: complete essays, possibly with prompts and writing guidance
+1. **素材** — 人物事迹、事件、道理论据
+2. **范文** — 完整作文，可能包含题目和写作指导
 
-Read the raw file first, then determine which workflow to follow.
+单个原始文件可能**同时包含**两种类型（如范文与配套素材打包在一起，或包含多个不同类型内容的文档）。
+
+## 文件选择
+
+- **用户指定了文件**（通过 `@file` 或路径）：只处理该文件。
+- **未指定文件**：列出 `raw/` 下的文件（排除 `raw/archive/`），处理所有新文件。
+- 处理完成后，将文件移入 `raw/archive/`。
+
+## 处理逻辑
+
+读取原始文件，判断内容类型。对每种类型执行下方对应的工作流。如果同时包含两种类型，先处理素材，再处理范文（因为范文工作流需要引用素材）。
 
 ---
 
 ## 素材 Ingest
 
-### Step 1: Read and Classify
+### 第一步：读取与分类
 
-Read the file from `raw/material/`. Determine the subtype: **人物** / **事件** / **道理**.
+读取素材内容，判断子类型：**人物** / **事件** / **道理**。
 
-### Step 2: Create Material Page
+### 第二步：创建素材页
 
-Create `wiki/material/{素材名称}.md` using this template:
+根据素材类型，在 `wiki/material/{素材名称}.md` 中使用对应模板。
+
+**合并规则：**
+- 如果素材页**不存在**：按下方模板创建
+- 如果素材页**已存在**：合并，保留已有内容并补充新信息（如新增关键事迹、使用示例、关联素材）
+
+**人物型：**
 
 ```markdown
 ---
 title: 素材名称
 type: 素材
-subtype: 人物 | 事件 | 道理
+subtype: 人物
 tags: []
 ---
 
@@ -58,18 +74,74 @@ tags: []
 - [[素材链接]] - 关联理由
 ```
 
-Naming rules:
-- Use the person's real name (e.g., `苏轼.md`, not `宋代诗人苏轼.md`)
-- For events/reasoning, use a concise descriptive name
+**事件型：**
 
-### Step 3: Update Topic Pages
+```markdown
+---
+title: 素材名称
+type: 素材
+subtype: 事件
+tags: []
+---
 
-Scan `wiki/topic/` for existing topic pages. If any topic is relevant to this material, add a link in that topic page's "关联素材" section.
+## 事件简介
 
-### Step 4: Update Material Index
+（一句话概括事件）
 
-Edit `wiki/material/index.md` — add an entry under the matching type (人物/事件/道理):
+## 事件经过
 
+## 使用示例
+
+### [[主题名称]]-[[来源]]
+> 原文引用
+
+## 关联素材
+
+- [[素材链接]] - 关联理由
+```
+
+**道理型：**
+
+```markdown
+---
+title: 素材名称
+type: 素材
+subtype: 道理
+tags: []
+---
+
+## 道理阐述
+
+（核心观点阐述）
+
+## 使用示例
+
+### [[主题名称]]-[[来源]]
+> 原文引用
+
+## 关联素材
+
+- [[素材链接]] - 关联理由
+```
+
+命名规则：
+- 素材名称用本名，不用修饰语（如 `苏轼.md`，不写 `宋代诗人苏轼.md`）
+- 事件/道理用简洁描述性名称
+
+### 第三步：更新主题页
+
+扫描 `wiki/topic/` 下已有的主题页。如果某主题与该素材相关，在该主题页的"关联素材"中添加链接。
+
+### 第四步：更新素材索引
+
+编辑 `wiki/material/index.md`，在对应类型（人物/事件/道理）下更新或新增条目。根据素材类型使用对应字段名。
+
+**合并规则：**
+- 如果索引中**不存在**该素材名：新增条目
+- 如果索引中**已存在**该素材名且内容相同：跳过
+- 如果索引中**已存在**该素材名但内容有差异：合并，保留已有信息并补充新内容（如新增可用主题、关联文章）
+
+**人物型：**
 ```markdown
 ### 素材名
 **人物简介**
@@ -82,17 +154,45 @@ Edit `wiki/material/index.md` — add an entry under the matching type (人物/�
 [[文章]]
 ```
 
-### Step 5: Update Main Index
+**事件型：**
+```markdown
+### 素材名
+**事件简介**
+...
+**事件经过**
+...
+**可用主题**
+[[主题]]
+**关联文章**
+[[文章]]
+```
 
-Edit `wiki/index.md` — add a line in the "素材" section:
+**道理型：**
+```markdown
+### 素材名
+**道理阐述**
+...
+**可用主题**
+[[主题]]
+**关联文章**
+[[文章]]
+```
+
+### 第五步：更新主索引
+
+编辑 `wiki/index.md`，在"素材"分类下更新或新增一行：
 
 ```markdown
 - [[素材名]] — 简介 | 可用主题
 ```
 
-### Step 6: Log
+如果该素材条目已存在且内容相同则跳过，有变化则更新。
 
-Append to `wiki/log.md`:
+### 第六步：归档与日志
+
+将已处理的文件移入 `raw/archive/`：
+
+追加 `wiki/log.md`：
 
 ```markdown
 ## [YYYY-MM-DD] ingest 素材 | 素材名 — 一句话说明
@@ -102,13 +202,13 @@ Append to `wiki/log.md`:
 
 ## 范文 Ingest
 
-### Step 1: Read
+### 第一步：读取
 
-Read the file from `raw/essay/`.
+读取原始文件中的范文内容。
 
-### Step 2: Create Essay Page
+### 第二步：创建范文页
 
-Create `wiki/essay/{来源-作文标题}.md` using this template:
+创建 `wiki/essay/{来源-作文标题}.md`，使用以下模板。如果范文页已存在，合并内容（保留已有分析，补充新信息）。
 
 ```markdown
 ---
@@ -149,31 +249,31 @@ tags: []
 - （可借鉴的技巧、表达、结构等）
 ```
 
-Naming rules:
-- With source: `2024全国甲-选择与担当.md`
-- Without source (non-exam): just the title, e.g., `青春与责任.md`
+命名规则：
+- 有来源（考试作文）：`来源-作文标题.md`（如 `2024全国甲-选择与担当.md`）
+- 无来源（非考试作文）：只用标题（如 `青春与责任.md`）
 
-**Hard rules:**
-- The "全文" section must be the original text verbatim — no modifications allowed
-- The "写作指导" section must only contain content from raw — if none exists, omit the section entirely. AI must never write this section on its own
+**硬性规则：**
+- "全文"部分必须原样搬运，禁止任何改动
+- "写作指导"部分只允许来自 raw 中的原始内容，如果没有则不写此节，禁止 AI 自行编写
 
-### Step 3: Extract Materials
+### 第三步：提取素材
 
-Identify all materials (素材) used in the essay. For each:
+识别范文中使用的所有素材。对每个素材：
 
-- If the material page already exists (`wiki/material/`): append a usage example
-- If not: create a new material page
+- 如果素材页已存在（`wiki/material/`）：追加使用示例
+- 如果不存在：创建新的素材页
 
-Usage example format (appended to existing material page's "使用示例"):
+使用示例格式（追加到已有素材页的"使用示例"中）：
 
 ```markdown
 ### [[主题名称]]-[[来源]]
 > 原文引用（从范文中提取的具体段落）
 ```
 
-### Step 4: Create or Update Topic Pages
+### 第四步：创建或更新主题页
 
-If the essay has a prompt or writing guidance, identify the topic. Create or update `wiki/topic/{主题}.md`:
+如果范文带有题目或写作指导，识别主题。创建或更新 `wiki/topic/{主题}.md`：
 
 ```markdown
 ---
@@ -203,21 +303,27 @@ type: 主题
 （常见于作文题目中的关键词，用于判断题目是否属于此主题）
 ```
 
-Topic naming: use 4- or 6-character phrases (e.g., `家国情怀.md`, `个人成长.md`)
+命名规则：主题用四字或六字短语（如 `家国情怀.md`、`个人成长.md`）
 
-### Step 5: Update Material Index
+### 第五步：更新素材索引
 
-For every material touched, update `wiki/material/index.md` — refresh the "关联文章" field.
+更新所有涉及素材的 `wiki/material/index.md` 条目，刷新"关联文章"字段。
 
-### Step 6: Update Main Index
+### 第六步：更新主索引
 
-Edit `wiki/index.md`:
-- Add the essay under "范文": `- [[范文]] | 主题：xxx | 素材：[[xxx]], [[xxx]]`
-- If a new topic was created, add under "主题": `- [[主题]] | 关键词：xxx`
+编辑 `wiki/index.md`：
+- 在"范文"下新增：`- [[范文]] | 主题：xxx | 素材：[[xxx]], [[xxx]]`
+- 如果创建了新主题，在"主题"下新增：`- [[主题]] | 关键词：xxx`
 
-### Step 7: Log
+### 第七步：归档与日志
 
-Append to `wiki/log.md`:
+将已处理的文件移入 `raw/archive/`：
+
+```bash
+mv raw/{filename} raw/archive/
+```
+
+追加 `wiki/log.md`：
 
 ```markdown
 ## [YYYY-MM-DD] ingest 范文 | 来源-标题 — 一句话说明
@@ -225,16 +331,16 @@ Append to `wiki/log.md`:
 
 ---
 
-## Cross-Reference Rules
+## 交叉引用规则
 
-All links use Obsidian `[[双链]]` syntax. Maintain bidirectional links:
+所有关联使用 Obsidian `[[双链]]` 语法，维护双向链接：
 
-| Link | Direction | Where |
-|------|-----------|-------|
-| Material <-> Topic | Bidirectional | Material "可用主题" <-> Topic "关联素材" |
-| Material -> Material | Via "关联素材" section | Material "关联素材" with reason |
-| Essay -> Material | Essay links to material | Essay "关联素材" |
-| Topic -> Essay | Topic links to essay | Topic "范文参考" |
-| Material -> Essay | Via "使用示例" | Material "使用示例" `[[来源]]` links to essay |
+| 关联 | 方向 | 位置 |
+|------|------|------|
+| 素材 ↔ 主题 | 双向 | 素材"可用主题" ↔ 主题"关联素材" |
+| 素材 → 素材 | 通过"关联素材" | 素材"关联素材"并写明关联理由 |
+| 范文 → 素材 | 范文链接素材 | 范文"关联素材" |
+| 主题 → 范文 | 主题链接范文 | 主题"范文参考" |
+| 素材 → 范文 | 通过"使用示例" | 素材"使用示例"中 `[[来源]]` 链接范文 |
 
-When creating links, always check the target page exists. If not, create it.
+创建链接时，检查目标页面是否存在。如果不存在，先创建该页面。
