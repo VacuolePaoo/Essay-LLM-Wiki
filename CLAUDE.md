@@ -16,6 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   │   └── index.md            # 素材专用详细索引
 │   ├── essay/                  # 范文页面
 │   ├── topic/                  # 主题页面
+│   ├── issues/                  # 素材矛盾冲突问题报告
 │   ├── index.md                # 主索引
 │   └── log.md                  # 操作日志
 ├── scripts/                    # 辅助脚本
@@ -51,6 +52,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 素材名称用本名，不用修饰语（如 `苏轼.md`，不写 `宋代诗人苏轼.md`）
 - 主题用四字或六字短语命名（如 `家国情怀.md`）
 - 范文文件名格式：`来源-作文标题.md`（无来源则只用标题）
+- 作文原子化拆分时，素材的「关键事迹」「事件经过」等事实性内容应当来自作文原文；若 AI 使用通用知识库或联网搜索补充条目，必须在该条目前面标注 `【AI】` 前缀
+- 若导入素材与已有素材存在事实性矛盾或冲突：在素材页底部追加 `## 矛盾冲突` 章节，原封搬运冲突双方的原文内容方便对比，并在 `wiki/issues/{素材名}-矛盾冲突.md` 创建问题报告
 
 ### Obsidian CLI
 
