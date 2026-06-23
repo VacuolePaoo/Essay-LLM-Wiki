@@ -1,12 +1,12 @@
-# CLAUDE.md
+## CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 高中语文作文 Wiki
+### 高中语文作文 Wiki
 
 本项目是一个基于 LLM Wiki 模式的高中语文作文知识库，也是一个 Obsidian vault。LLM 负责维护 wiki 的全部内容，用户负责提供原始资料和提问。所有页面间关联使用 Obsidian `[[双链]]` 语法。
 
-### 目录结构
+#### 目录结构
 
 ```
 ├── raw/                        # 原始资料
@@ -27,14 +27,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     └── topic-template.md
 ```
 
-### 输入类型
+#### 输入类型
 
 只有两种内容类型，可能出现在同一个文件中：
 
 1. **范文** — 完整的作文原文，可能包含题目和写作指导
 2. **素材** — 人物事迹、事件、道理论据等
 
-### 工作流
+#### 工作流
 
 详细工作流由对应的 skill 定义：
 
@@ -42,7 +42,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **`/query`** — 查询 wiki 内容，综合索引和页面回答问题
 - **`/lint`** — 健康检查：链接完整性、素材覆盖、索引同步
 
-### 硬性约束
+#### 硬性约束
 
 - `raw/` 目录下文件 LLM 只读不改，处理后移入 `raw/archive/`
 - 范文全文必须原样搬运，禁止任何改动
@@ -55,7 +55,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 作文原子化拆分时，素材的「关键事迹」「事件经过」等事实性内容应当来自作文原文；若 AI 使用通用知识库或联网搜索补充条目，必须在该条目前面标注 `【AI】` 前缀
 - 若导入素材与已有素材存在事实性矛盾或冲突：在素材页底部追加 `## 矛盾冲突` 章节，原封搬运冲突双方的原文内容方便对比，并在 `wiki/issues/{素材名}-矛盾冲突.md` 创建问题报告
 
-### Obsidian CLI
+#### Obsidian CLI
 
 `/lint` 依赖 `obsidian` CLI 工具检查链接。关键命令均需加 `vault=EssaySystem`：
 
